@@ -1,19 +1,65 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using BrickLinkPoller.Models;
+using BrickLinkPoller.Services;
+using Microsoft.Extensions.Configuration;
+using System.Text;
 
 namespace BrickLinkPoller
 {
-    internal class Program
+	internal class Program
     {
+        static BrickLinkConnection bricklink;
 		static DiscordMessager messager;
+        static StatusRepository statusRepository;
 
         static async Task Main(string[] args)
         {
-            var messageString = "Ohayo Sekai!";
-
 			messager = new DiscordMessager();
-            await messager.SendMessage(messageString);
+            bricklink = new BrickLinkConnection();
+            statusRepository = new StatusRepository();
 
-			Console.WriteLine(messageString);
+            var orders = await bricklink.GetOrders();
+            var newOrders = new List<BrickLinkOrder>();
+
+            var message = new StringBuilder();
+
+            if (orders != null)
+            {
+                var databaseOrders = await statusRepository.GetOrders();
+
+                foreach (var order in orders)
+                {
+                    if (databaseOrders!.Select(dord => dord.Order_Id).Contains(order.Order_Id))
+                    {
+                        var databaseOrder = databaseOrders!.SingleOrDefault(dord => dord.Order_Id == order.Order_Id);
+                        if (databaseOrder != null)
+                        {
+							//if (databaseOrder.Status != order.Status)
+							//{
+							//    var oldStatus = databaseOrder.Status;
+							//    databaseOrder.Status = order.Status;
+							//    await statusRepository.UpdateOrderStatus(databaseOrder);
+							//    message.AppendLine($"Order {order.Order_Id} from {order.Store_Name} has changed from {oldStatus} to {databaseOrder.Status}!");
+							//}
+							var oldStatus = databaseOrder.Status;
+							databaseOrder.Status = order.Status;
+							await statusRepository.UpdateOrderStatus(databaseOrder);
+							message.AppendLine($"Order {order.Order_Id} from {order.Store_Name} has changed from {oldStatus} to {databaseOrder.Status}!");
+						}
+						else
+						{
+                            await statusRepository.RemoveOrder(order.Order_Id);
+							message.AppendLine($"Order {order.Order_Id} from {order.Store_Name} has been completed!");
+						}
+					}
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(message.ToString()))
+            {
+				await messager.SendMessage(message.ToString());
+			}
+
+			Console.WriteLine(message.ToString());
         }
     }
 }

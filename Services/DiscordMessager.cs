@@ -1,21 +1,21 @@
 ﻿using System.Text;
 using System.Text.Json;
 
-namespace BrickLinkPoller
+namespace BrickLinkPoller.Services
 {
 	public class DiscordMessager
 	{
 		HttpClient _httpClient;
-		Configuration configuration;
+		Configuration config;
 
 		string webhookUrl;
 
-		public DiscordMessager() 
+		public DiscordMessager()
 		{
 			_httpClient = new HttpClient();
-			configuration = new Configuration();
+			config = new Configuration();
 
-			webhookUrl = configuration.configuration["Settings:Webhook"];
+			webhookUrl = config.configuration["Settings:Webhook"]!;
 		}
 
 		public async Task SendMessage(string message)
