@@ -24,5 +24,12 @@ jobs:
     - name: Build the app
       run: dotnet build --configuration Release
 
+    - name: Debug webhook (length only)
+      run: echo "Webhook length:${#Settings__Webhook}"
+      env:
+        Settings__Webhook: ${{ secrets.WEBHOOK }}
+
     - name: Run the app
       run: dotnet run --configuration Release --no-build
+      env:
+        Settings__Webhook: ${{ secrets.WEBHOOK }}
