@@ -26,3 +26,5 @@ jobs:
 
     - name: Run the app
       run: dotnet run --configuration Release --no-build
+      env:
+        Settings__Webhook: ${{ secrets.WEBHOOK }}
