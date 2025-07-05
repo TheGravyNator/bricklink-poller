@@ -1,8 +1,6 @@
 name: Check BrickLink Order Status
 
 on:
-  schedule:
-    - cron: '*/5 * * * *'
   workflow_dispatch:
 
 jobs:
@@ -24,12 +22,21 @@ jobs:
     - name: Build the app
       run: dotnet build --configuration Release
 
-    - name: Debug webhook (length only)
-      run: echo "Webhook length:${#Settings__Webhook}"
-      env:
-        Settings__Webhook: ${{ secrets.WEBHOOK }}
+    - name: Authenticate with GCP
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: '${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}'
+
+    - name: Install Firestore client
+      run: pip install google-cloud-firestore
 
     - name: Run the app
       run: dotnet run --configuration Release --no-build
       env:
         Settings__Webhook: ${{ secrets.WEBHOOK }}
+        OAuth__ConsumerKey: ${{ secrets.OAUTH_CONSUMER_KEY }}
+        OAuth__ConsumerSecret: ${{ secrets.OAUTH_CONSUMER_SECRET }}
+        OAuth__Token: ${{ secrets.OAUTH_TOKEN }}
+        OAuth__TokenSecret: ${{ secrets.OAUTH_TOKEN_SECRET }}
+        Firestore__ProjectName: ${{ secrets.FIRESTORE_PROJECTNAME }}
+        
