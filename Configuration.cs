@@ -10,7 +10,8 @@ namespace BrickLinkPoller
 		{
 			var builder = new ConfigurationBuilder()
 				.AddJsonFile("appsettings.json", optional: true)
-				.AddUserSecrets<Program>();
+				.AddUserSecrets<Program>()
+				.AddEnvironmentVariables();
 
 			configuration = builder.Build();
 		}
