@@ -33,18 +33,14 @@ namespace BrickLinkPoller
                         var databaseOrder = databaseOrders!.SingleOrDefault(dord => dord.Order_Id == order.Order_Id);
                         if (databaseOrder != null)
                         {
-							//if (databaseOrder.Status != order.Status)
-							//{
-							//    var oldStatus = databaseOrder.Status;
-							//    databaseOrder.Status = order.Status;
-							//    await statusRepository.UpdateOrderStatus(databaseOrder);
-							//    message.AppendLine($"Order {order.Order_Id} from {order.Store_Name} has changed from {oldStatus} to {databaseOrder.Status}!");
-							//}
-							var oldStatus = databaseOrder.Status;
-							databaseOrder.Status = order.Status;
-							await statusRepository.UpdateOrderStatus(databaseOrder);
-							message.AppendLine($"Order {order.Order_Id} from {order.Store_Name} has changed from {oldStatus} to {databaseOrder.Status}!");
-						}
+                            if (databaseOrder.Status != order.Status)
+                            {
+                                var oldStatus = databaseOrder.Status;
+                                databaseOrder.Status = order.Status;
+                                await statusRepository.UpdateOrderStatus(databaseOrder);
+                                message.AppendLine($"Order {order.Order_Id} from {order.Store_Name} has changed from {oldStatus} to {databaseOrder.Status}!");
+                            }
+                        }
 						else
 						{
                             await statusRepository.RemoveOrder(order.Order_Id);
