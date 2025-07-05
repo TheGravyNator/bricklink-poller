@@ -6,12 +6,16 @@ namespace BrickLinkPoller
 	public class DiscordMessager
 	{
 		HttpClient _httpClient;
+		Configuration configuration;
+
 		string webhookUrl;
 
 		public DiscordMessager() 
 		{
 			_httpClient = new HttpClient();
-			webhookUrl = "https://discord.com/api/webhooks/1391000751953674321/9wPnBmWDoraPSofaZWyyD2yXmc7wKXZOYmRpZnMkjt3aIgH1Ce_3lMoM79OIogTUZn8U";
+			configuration = new Configuration();
+
+			webhookUrl = configuration.configuration["Settings:Webhook"];
 		}
 
 		public async Task SendMessage(string message)

@@ -10,14 +10,6 @@ namespace BrickLinkPoller
         {
             var messageString = "Ohayo Sekai!";
 
-			var builder = new ConfigurationBuilder()
-				.AddJsonFile("appsettings.json", optional: false)
-				.AddUserSecrets<Program>(); 
-
-			var configuration = builder.Build();
-
-			var webhook = configuration["Settings:Webhook"];
-
 			messager = new DiscordMessager();
             await messager.SendMessage(messageString);
 
