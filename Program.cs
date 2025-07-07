@@ -38,7 +38,11 @@ namespace BrickLinkPoller
                                 var oldStatus = databaseOrder.Status;
                                 databaseOrder.Status = order.Status;
                                 await statusRepository.UpdateOrderStatus(databaseOrder);
-                                message.AppendLine($"Order {order.Order_Id} from {order.Store_Name} has changed from {oldStatus} to {databaseOrder.Status}!");
+                                message.AppendLine($"Order [#{order.Order_Id}](https://www.bricklink.com/orderDetail.asp?ID={order.Order_Id}) from {order.Store_Name} has changed from {oldStatus} to {databaseOrder.Status}!");
+                                if (order.Tracking_Number != null)
+                                {
+                                    message.AppendLine($"Order [#{order.Order_Id}](https://www.bricklink.com/orderDetail.asp?ID={order.Order_Id})'s tracking number is {order.Tracking_Number}.");
+                                }
                             }
                         }
 						else

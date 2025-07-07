@@ -13,10 +13,18 @@ namespace BrickLinkPoller.Models
 
 		[FirestoreProperty]
 		public string Status { get; set; }
-	}
+
+		[FirestoreProperty]
+		public string? Tracking_Number { get; set; }
+    }
 
 	public class BrickLinkOrderResponse
 	{
 		public List<BrickLinkOrder> Data { get; set; }
 	}
+
+	public class BrickLinkOrderSingleResponse 
+	{
+		public BrickLinkOrder Data { get; set; }
+    }
 }

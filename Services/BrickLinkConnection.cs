@@ -10,8 +10,9 @@ namespace BrickLinkPoller.Services
 	{
 		Configuration config;
 		RestClient client;
+		JsonSerializerOptions options;
 
-		string[] excludedStatuses = 
+        string[] excludedStatuses = 
 		{
 			"PURGED",
 			"COMPLETED",
@@ -39,6 +40,12 @@ namespace BrickLinkPoller.Services
 			{
 				Authenticator = authenticator
 			});
+
+			options = new JsonSerializerOptions
+			{
+				PropertyNameCaseInsensitive = true
+			};
+			options.Converters.Add(new BrickLinkOrderConverter());
 		}
 
 		public async Task<List<BrickLinkOrder>?> GetOrders()
@@ -57,18 +64,26 @@ namespace BrickLinkPoller.Services
 			try
 			{
 				var brickLinkResponse = JsonSerializer.Deserialize<BrickLinkOrderResponse>(
-					response.Content!,
+					response.Content!, 
 					new JsonSerializerOptions
 					{
 						PropertyNameCaseInsensitive = true
-					}
-				);
+					});
 
-				if (brickLinkResponse != null)
+                if (brickLinkResponse != null)
 				{
-					return brickLinkResponse.Data
-						.Where(order => !excludedStatuses.Contains(order.Status))
-						.ToList();
+                    var detailedResponses = new List<BrickLinkOrder>();
+                    foreach (var order in brickLinkResponse.Data.Where(order => !excludedStatuses.Contains(order.Status)).ToList())
+                    {
+                        var detailedOrder = await GetOrder(order.Order_Id);
+                        if (detailedOrder != null)
+                        {
+                            detailedResponses.Add(detailedOrder);
+                        }
+                    }
+
+					return detailedResponses;
+						
 				}
 				else
 				{
@@ -80,5 +95,37 @@ namespace BrickLinkPoller.Services
 				throw new Exception($"Could not deserialize the orders due to: {ex.Message}");
 			}
 		}
-	}
+
+        public async Task<BrickLinkOrder?> GetOrder(int orderId)
+        {
+            var request = new RestRequest($"orders/{orderId}", Method.Get);
+            request.AddQueryParameter("direction", "out");
+
+            var response = await client.GetAsync(request);
+
+            if (!response.IsSuccessful)
+            {
+                Console.WriteLine($"Error: {response.StatusCode} - {response.Content}");
+                throw new Exception(response.ErrorMessage);
+            }
+
+            try
+            {
+                var brickLinkResponse = JsonSerializer.Deserialize<BrickLinkOrderSingleResponse>(response.Content!, options);
+
+                if (brickLinkResponse != null)
+                {
+					return brickLinkResponse.Data;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Could not deserialize the order due to: {ex.Message}");
+            }
+        }
+    }
 }
