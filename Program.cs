@@ -59,11 +59,14 @@ namespace BrickLinkPoller
 						}
 						else
 						{
-							await statusRepository.AddOrder(order);
-							message.AppendLine($"Order [#{order.Order_Id}](<https://www.bricklink.com/orderDetail.asp?ID={order.Order_Id}>) from {order.Store_Name} has been added!");
-							if (order.Tracking_Number != null)
+							if (order.Status != "COMPLETED")
 							{
-								message.AppendLine($"Order [#{order.Order_Id}](<https://www.bricklink.com/orderDetail.asp?ID={order.Order_Id}>)'s tracking number is {order.Tracking_Number}.");
+								await statusRepository.AddOrder(order);
+								message.AppendLine($"Order [#{order.Order_Id}](<https://www.bricklink.com/orderDetail.asp?ID={order.Order_Id}>) from {order.Store_Name} has been added!");
+								if (order.Tracking_Number != null)
+								{
+									message.AppendLine($"Order [#{order.Order_Id}](<https://www.bricklink.com/orderDetail.asp?ID={order.Order_Id}>)'s tracking number is {order.Tracking_Number}.");
+								}
 							}
 						}
 					}
