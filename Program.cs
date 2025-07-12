@@ -33,25 +33,34 @@ namespace BrickLinkPoller
                         var databaseOrder = databaseOrders!.SingleOrDefault(dord => dord.Order_Id == order.Order_Id);
                         if (databaseOrder != null)
                         {
-                            if (databaseOrder.Status != order.Status)
+							if (order.Status == "COMPLETED")
+							{
+								await statusRepository.RemoveOrder(order.Order_Id);
+								message.AppendLine($"Order [#{order.Order_Id}](<https://www.bricklink.com/orderDetail.asp?ID={order.Order_Id}>) from {order.Store_Name} has been completed!");
+							}
+							else if (databaseOrder.Status != order.Status)
                             {
                                 var oldStatus = databaseOrder.Status;
                                 databaseOrder.Status = order.Status;
                                 await statusRepository.UpdateOrderStatus(databaseOrder);
-                                message.AppendLine($"Order [#{order.Order_Id}](https://www.bricklink.com/orderDetail.asp?ID={order.Order_Id}) from {order.Store_Name} has changed from {oldStatus} to {databaseOrder.Status}!");
+                                message.AppendLine($"Order [#{order.Order_Id}](<https://www.bricklink.com/orderDetail.asp?ID={order.Order_Id}>) from {order.Store_Name} has changed from {oldStatus} to {databaseOrder.Status}!");
                                 if (order.Tracking_Number != null)
                                 {
-                                    message.AppendLine($"Order [#{order.Order_Id}](https://www.bricklink.com/orderDetail.asp?ID={order.Order_Id})'s tracking number is {order.Tracking_Number}.");
+                                    message.AppendLine($"Order [#{order.Order_Id}](<https://www.bricklink.com/orderDetail.asp?ID={order.Order_Id}>)'s tracking number is {order.Tracking_Number}.");
                                 }
                             }
                         }
-						else
+					}
+					else
+					{
+						await statusRepository.AddOrder(order);
+						message.AppendLine($"Order [#{order.Order_Id}](<https://www.bricklink.com/orderDetail.asp?ID={order.Order_Id}>) from {order.Store_Name} has been added!");
+						if (order.Tracking_Number != null)
 						{
-                            await statusRepository.RemoveOrder(order.Order_Id);
-							message.AppendLine($"Order {order.Order_Id} from {order.Store_Name} has been completed!");
+							message.AppendLine($"Order [#{order.Order_Id}](<https://www.bricklink.com/orderDetail.asp?ID={order.Order_Id}>)'s tracking number is {order.Tracking_Number}.");
 						}
 					}
-                }
+				}
             }
 
             if (!string.IsNullOrWhiteSpace(message.ToString()))

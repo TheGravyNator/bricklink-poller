@@ -15,7 +15,6 @@ namespace BrickLinkPoller.Services
         string[] excludedStatuses = 
 		{
 			"PURGED",
-			"COMPLETED",
 			"CANCELLED"
 		};
 
