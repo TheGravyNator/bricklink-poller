@@ -67,7 +67,7 @@ namespace BrickLinkPoller.Services
 
 		public async Task AddOrder(BrickLinkOrder order)
 		{
-			var docRef = db.Collection("orders").Document($"order.Order_Id");
+			var docRef = db.Collection("orders").Document($"{order.Order_Id}");
 
 			await docRef.SetAsync(order);
 		}
