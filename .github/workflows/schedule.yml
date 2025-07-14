@@ -11,22 +11,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Cache NuGet packages
-      uses: actions/cache@v4
-      with:
-        path: ~/.nuget/packages
-        key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj') }}
-        restore-keys: |
-          nuget-${{ runner.os }}-
-
-    - name: Cache pip dependencies
-      uses: actions/cache@v4
-      with:
-        path: ~/.cache/pip
-        key: pip-${{ runner.os }}-${{ hashFiles('**/requirements.txt') }}
-        restore-keys: |
-          pip-${{ runner.os }}-
-
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
